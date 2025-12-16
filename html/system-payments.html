@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Payments - Payments API</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Tuo CSS Personalizzato -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="index.html">
+        <i class="bi bi-wallet2 text-primary"></i> Payments API
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">Payments</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Cards Payments</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="ledger.html">Ledger</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="transfer.html">Credit Transfers</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5">
+    
+    <!-- HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2><i class="bi bi-cpu text-info"></i> System Payments</h2>
+            <p class="text-muted">Gestione pagamenti interni e cambi di stato.</p>
+        </div>
+        <button class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#createPaymentModal">
+            <i class="bi bi-plus-lg"></i> Nuovo Pagamento
+        </button>
+    </div>
+
+    <!-- BARRA DI FILTRO -->
+    <div class="card p-3 mb-4 border-0 shadow-sm bg-white">
+        <div class="row g-3 align-items-center">
+            <div class="col-auto">
+                <label class="col-form-label fw-bold text-muted">Filtra per Account:</label>
+            </div>
+            <div class="col-auto">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-person-badge"></i></span>
+                    <input type="number" id="searchAccountId" class="form-control" placeholder="ID (es. 1001)">
+                    <button class="btn btn-primary" onclick="searchByAccount()">Cerca</button>
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-outline-secondary" onclick="loadAllPayments()">Reset / Vedi Tutti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABELLA -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Account ID</th>
+                        <th>Data Creazione</th>
+                        <th>Riferimento</th>
+                        <th>Descrizione</th>
+                        <th class="text-end">Importo</th>
+                        <th class="text-center">Stato</th>
+                        <th class="text-end">Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsTableBody">
+                    <tr><td colspan="7" class="text-center py-4 text-muted">In attesa di dati...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CREA NUOVO PAGAMENTO -->
+<div class="modal fade" id="createPaymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuovo System Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm">
+                    <div class="mb-3">
+                        <label class="form-label">Account ID <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="newAccountId" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Importo <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" class="form-control" id="newAmount" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Direzione</label>
+                            <select class="form-select" id="newDirection">
+                                <option value="DEBIT">DEBIT (Addebito)</option>
+                                <option value="CREDIT">CREDIT (Accredito)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrizione</label>
+                        <input type="text" class="form-control" id="newDesc" placeholder="Es. Fee gestione">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">External Reference ID</label>
+                        <input type="text" class="form-control" id="newRef" placeholder="Codice opzionale">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stato Iniziale</label>
+                        <select class="form-select" id="newStatus">
+                            <option value="CREATED" selected>CREATED</option>
+                            <option value="PENDING">PENDING</option>
+                            <option value="EXECUTED">EXECUTED</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                <button type="button" class="btn btn-primary" onclick="createPayment()">Salva Pagamento</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- LOGICA SEPARATA -->
+<script src="/scripts/system-paymentsScript.js"></script>
+</body>
+</html>
