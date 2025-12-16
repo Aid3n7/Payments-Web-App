@@ -1,0 +1,30 @@
+/* 1. Impostazioni Generali */
+body {
+    background-color: #f8f9fa; /* Grigio leggerissimo, più riposante del bianco puro */
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 2. Stili per le Icone nella Home */
+.feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.75rem;
+    border-radius: .75rem;
+}
+
+/* 3. Animazioni e Stili delle Card */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none; /* Rimuove il bordo grigio standard per un look più pulito */
+}
+
+/* Effetto quando passi il mouse sopra una card */
+.card:hover {
+    transform: translateY(-5px); /* La card si alza leggermente */
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, 0.15) !important; /* Aumenta l'ombra */
+    cursor: pointer;
+}
+
